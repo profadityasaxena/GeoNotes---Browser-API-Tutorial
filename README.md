@@ -12,11 +12,10 @@
 
 GeoNotes is a progressive web application (PWA) designed to let users take notes that are tagged with their current geographical location. This lightweight web app demonstrates how modern browser APIs can be combined to build a feature-rich, offline-capable note-taking solution without requiring any backend server.
 
----
-## 🎥 Demo Video
+## 🌐 Live Deployment
 
-Watch a quick demo of GeoNotes in action:  
-[![Demo Video](https://img.youtube.com/vi/placeholder/0.jpg)](./screenshots/VideoDemo.mov)
+Experience GeoNotes live:  
+[GeoNotes - Browser API Tutorial](https://geo-notes-browser-api-tutorial.vercel.app/)
 
 Thanks
 ---
