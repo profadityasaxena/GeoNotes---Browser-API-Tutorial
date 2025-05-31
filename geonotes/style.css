@@ -106,3 +106,37 @@
   .note-card-buttons button:hover {
     background-color: #00897b;
   }
+
+  .note-card-buttons {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+  
+  .note-card-buttons button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    border: none;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .note-card-buttons button:first-child {
+    background-color: #00796b;
+    color: #fff;
+  }
+  
+  .note-card-buttons button:first-child:hover {
+    background-color: #004d40;
+  }
+  
+  .note-card-buttons button:last-child {
+    background-color: #d32f2f;
+    color: #fff;
+  }
+  
+  .note-card-buttons button:last-child:hover {
+    background-color: #b71c1c;
+  }
