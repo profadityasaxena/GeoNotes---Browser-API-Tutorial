@@ -16,7 +16,7 @@ GeoNotes is a progressive web application (PWA) designed to let users take notes
 ## 🎥 Demo Video
 
 Watch a quick demo of GeoNotes in action:  
-[![Demo Video](https://img.youtube.com/vi/placeholder/0.jpg)](screenshots/Screen%20Recording%202025-05-31%20at%2012.38.45%20AM.mov)
+[![Demo Video](https://img.youtube.com/vi/placeholder/0.jpg)](./screenshots/Screen%20Recording%202025-05-31%20at%2012.38.45%20AM.mov)
 
 Thanks
 ---
