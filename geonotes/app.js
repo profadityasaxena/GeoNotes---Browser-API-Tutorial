@@ -1,15 +1,21 @@
 // ------------------------------
+// IndexedDB Wrapper
+// ------------------------------
+import { dbPromise } from './db.js';
+
+// ------------------------------
 // Element References
 // ------------------------------
 const titleInput = document.getElementById("title");
 const noteInput = document.getElementById("note");
 const saveButton = document.getElementById("saveNote");
+const notesSection = document.getElementById("notesList");
 let editingKey = null;
 
 // ------------------------------
 // Save or Update Note (with Geolocation)
 // ------------------------------
-saveButton.addEventListener("click", () => {
+saveButton.addEventListener("click", async () => {
   const title = titleInput.value.trim();
   const content = noteInput.value.trim();
 
@@ -24,7 +30,7 @@ saveButton.addEventListener("click", () => {
   }
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    async (position) => {
       const { latitude, longitude } = position.coords;
 
       const note = {
@@ -35,28 +41,36 @@ saveButton.addEventListener("click", () => {
       };
 
       const noteKey = editingKey || `note-${Date.now()}`;
-      localStorage.setItem(noteKey, JSON.stringify(note));
 
-      if ("Notification" in window) {
-        if (Notification.permission === "granted") {
-          new Notification("📌 Note Saved", { body: title });
-        } else if (Notification.permission !== "denied") {
-          Notification.requestPermission().then((perm) => {
-            if (perm === "granted") {
-              new Notification("📌 Note Saved", { body: title });
-            }
-          });
+      try {
+        const db = await dbPromise;
+        await db.put('notes', { ...note, id: noteKey });
+        console.log("✅ Note saved to IndexedDB:", note);
+
+        if ("Notification" in window) {
+          if (Notification.permission === "granted") {
+            new Notification("📌 Note Saved", { body: title });
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then((perm) => {
+              if (perm === "granted") {
+                new Notification("📌 Note Saved", { body: title });
+              }
+            });
+          }
         }
+
+        // Reset form
+        titleInput.value = "";
+        noteInput.value = "";
+        editingKey = null;
+        saveButton.textContent = "Save Note";
+
+        showToast(`✅ Note saved at:\nLat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)}`);
+        loadNotes();
+      } catch (err) {
+        console.error("Error saving note to IndexedDB", err);
+        showToast("❌ Failed to save note.");
       }
-
-      // Reset state
-      titleInput.value = "";
-      noteInput.value = "";
-      editingKey = null;
-      saveButton.textContent = "Save Note";
-
-      showToast(`✅ Note saved at:\nLatitude: ${latitude.toFixed(5)}\nLongitude: ${longitude.toFixed(5)}`);
-      loadNotes();
     },
     (error) => {
       console.error("Geolocation error:", error);
@@ -78,111 +92,65 @@ saveButton.addEventListener("click", () => {
 });
 
 // ------------------------------
-// Load & Render Notes (with Drag Support)
+// Load & Render Notes from IndexedDB
 // ------------------------------
-function loadNotes() {
-  const notesSection = document.getElementById("notesList");
-  notesSection.innerHTML = "";
+async function loadNotes() {
+  const db = await dbPromise;
+  const notes = await db.getAll('notes');
 
-  const keys = Object.keys(localStorage)
-    .filter((k) => k.startsWith("note-"))
-    .sort();
+  notesSection.innerHTML = notes.length === 0
+    ? "<p>No notes saved yet.</p>"
+    : "";
 
-  if (keys.length === 0) {
-    notesSection.innerHTML = "<p>No notes saved yet.</p>";
-    return;
-  }
-
-  keys.forEach((key) => {
-    const note = JSON.parse(localStorage.getItem(key));
-    const noteCard = document.createElement("div");
-    noteCard.className = "note-card";
-    noteCard.setAttribute("draggable", "true");
-    noteCard.dataset.key = key;
-
-    noteCard.innerHTML = `
-      <h3>${note.title}</h3>
-      <p>${note.content}</p>
-      <small>📍 Lat: ${note.location.latitude.toFixed(5)}, Lng: ${note.location.longitude.toFixed(5)}</small><br/>
-      <small>🕒 ${new Date(note.timestamp).toLocaleString()}</small>
-      <div class="note-card-buttons">
-        <button onclick="copyNoteContent(\`${note.title.replace(/`/g, "\\`")}\`, \`${note.content.replace(/`/g, "\\`")}\`)">Copy</button>
-        <button onclick="editNote('${key}')">Edit</button>
-        <button onclick="deleteNote('${key}')">Delete</button>
-      </div>
-    `;
-
-    // Drag-and-Drop Events
-    noteCard.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("text/plain", key);
-      noteCard.classList.add("dragging");
+  notes
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .forEach(note => {
+      const noteCard = document.createElement("div");
+      noteCard.className = "note-card";
+      noteCard.innerHTML = `
+        <h3>${note.title}</h3>
+        <p>${note.content}</p>
+        <small>📍 Lat: ${note.location.latitude.toFixed(5)}, Lng: ${note.location.longitude.toFixed(5)}</small><br/>
+        <small>🕒 ${new Date(note.timestamp).toLocaleString()}</small>
+        <div class="note-card-buttons">
+          <button onclick="copyNoteContent('${note.title}', \`${note.content}\`)">Copy</button>
+          <button onclick="editNote('${note.id}')">Edit</button>
+          <button onclick="deleteNote('${note.id}')">Delete</button>
+        </div>
+      `;
+      notesSection.appendChild(noteCard);
     });
-
-    noteCard.addEventListener("dragover", (e) => e.preventDefault());
-
-    noteCard.addEventListener("drop", (e) => {
-      e.preventDefault();
-      const draggedKey = e.dataTransfer.getData("text/plain");
-      const targetKey = noteCard.dataset.key;
-
-      if (draggedKey && draggedKey !== targetKey) {
-        reorderNotes(draggedKey, targetKey);
-        loadNotes();
-      }
-    });
-
-    noteCard.addEventListener("dragend", () => {
-      noteCard.classList.remove("dragging");
-    });
-
-    notesSection.appendChild(noteCard);
-  });
-}
-
-// ------------------------------
-// Reorder Notes in localStorage
-// ------------------------------
-function reorderNotes(draggedKey, targetKey) {
-  const keys = Object.keys(localStorage).filter(k => k.startsWith("note-")).sort();
-  const draggedIndex = keys.indexOf(draggedKey);
-  const targetIndex = keys.indexOf(targetKey);
-
-  if (draggedIndex === -1 || targetIndex === -1) return;
-
-  const reordered = [...keys];
-  const [removed] = reordered.splice(draggedIndex, 1);
-  reordered.splice(targetIndex, 0, removed);
-
-  const updated = {};
-  reordered.forEach((k, i) => {
-    updated[`note-${i}-${Date.now()}`] = localStorage.getItem(k);
-  });
-
-  keys.forEach(k => localStorage.removeItem(k));
-  Object.entries(updated).forEach(([k, v]) => localStorage.setItem(k, v));
 }
 
 // ------------------------------
 // Edit Note
 // ------------------------------
-function editNote(key) {
-  const note = JSON.parse(localStorage.getItem(key));
-  titleInput.value = note.title;
-  noteInput.value = note.content;
-  editingKey = key;
-  saveButton.textContent = "Update Note";
-  showToast("✏️ Edit mode enabled");
+async function editNote(id) {
+  const db = await dbPromise;
+  const note = await db.get('notes', id);
+
+  if (note) {
+    titleInput.value = note.title;
+    noteInput.value = note.content;
+    editingKey = note.id;
+    saveButton.textContent = "Update Note";
+    showToast("✏️ Edit mode enabled");
+  }
 }
+window.editNote = editNote;
 
 // ------------------------------
 // Delete Note
 // ------------------------------
-function deleteNote(noteKey) {
+async function deleteNote(id) {
   if (confirm("Are you sure you want to delete this note?")) {
-    localStorage.removeItem(noteKey);
+    const db = await dbPromise;
+    await db.delete('notes', id);
+    showToast("🗑️ Note deleted.");
     loadNotes();
   }
 }
+window.deleteNote = deleteNote;
 
 // ------------------------------
 // Copy to Clipboard
@@ -193,6 +161,7 @@ function copyNoteContent(title, content) {
     .then(() => showToast("📝 Note copied to clipboard!"))
     .catch(() => showToast("❌ Failed to copy note."));
 }
+window.copyNoteContent = copyNoteContent;
 
 // ------------------------------
 // Show Toast Notification
@@ -201,14 +170,11 @@ function showToast(message) {
   const toast = document.getElementById("toast");
   toast.textContent = message;
   toast.classList.add("show");
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 2500);
+  setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
 // ------------------------------
-// Speech Recognition Setup
+// Voice Recognition
 // ------------------------------
 const startVoiceBtn = document.getElementById("startVoice");
 
@@ -233,10 +199,6 @@ if ('webkitSpeechRecognition' in window) {
     console.error("Speech recognition error:", event.error);
     showToast(`❌ Voice error: ${event.error}`);
   };
-
-  recognition.onend = function() {
-    console.log("Speech recognition ended.");
-  };
 } else {
   startVoiceBtn.disabled = true;
   startVoiceBtn.textContent = "🎤 Not Supported";
@@ -247,3 +209,12 @@ if ('webkitSpeechRecognition' in window) {
 // Load Notes on Page Load
 // ------------------------------
 window.addEventListener("load", loadNotes);
+
+// ------------------------------
+// Debug Hook: Read Notes
+// ------------------------------
+window.testReadNotes = async function () {
+  const db = await dbPromise;
+  const notes = await db.getAll('notes');
+  console.log("📂 All notes in IndexedDB:", notes);
+};
