@@ -208,6 +208,42 @@ function showToast(message) {
 }
 
 // ------------------------------
+// Speech Recognition Setup
+// ------------------------------
+const startVoiceBtn = document.getElementById("startVoice");
+
+if ('webkitSpeechRecognition' in window) {
+  const recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+
+  startVoiceBtn.addEventListener("click", () => {
+    recognition.start();
+    showToast("🎙️ Listening... Speak your note.");
+  });
+
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript;
+    noteInput.value = transcript;
+    showToast("✅ Voice captured!");
+  };
+
+  recognition.onerror = function(event) {
+    console.error("Speech recognition error:", event.error);
+    showToast(`❌ Voice error: ${event.error}`);
+  };
+
+  recognition.onend = function() {
+    console.log("Speech recognition ended.");
+  };
+} else {
+  startVoiceBtn.disabled = true;
+  startVoiceBtn.textContent = "🎤 Not Supported";
+  showToast("⚠️ Speech Recognition not supported on this browser.");
+}
+
+// ------------------------------
 // Load Notes on Page Load
 // ------------------------------
 window.addEventListener("load", loadNotes);

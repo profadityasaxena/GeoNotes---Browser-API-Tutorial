@@ -1,161 +1,223 @@
-/* Reset & Base */
-* {
-    box-sizing: border-box;
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to bottom right, #e0f7fa, #ede7f6);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding: 2rem;
-  }
-  
-  /* Main Card Container */
-  main {
-    background: #ffffff;
-    padding: 2.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    width: 100%;
-    max-width: 500px;
-  }
-  
-  /* Heading */
-  h1 {
-    text-align: center;
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-  
-  /* Input Fields & Textarea */
-  input,
-  textarea {
-    width: 100%;
-    padding: 0.9rem 1rem;
-    margin-bottom: 1rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    transition: border 0.2s ease-in-out;
-  }
-  
-  input:focus,
-  textarea:focus {
-    border-color: #26a69a;
-    outline: none;
-  }
-  
-  /* Buttons */
-  button {
-    width: 100%;
-    padding: 0.9rem;
-    background-color: #00796b;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  button:hover {
-    background-color: #004d40;
-  }
-  
-  /* Notes Section */
-  #notesList {
-    margin-top: 2rem;
-  }
-  
-  /* Note Cards */
-  .note-card {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-  }
-  
-  /* Note Card Buttons */
-  .note-card-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-  
-  .note-card-buttons button {
-    width: auto;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-    background-color: #26a69a;
-    border-radius: 0.4rem;
-    transition: background-color 0.2s ease;
-  }
-  
-  .note-card-buttons button:hover {
-    background-color: #00897b;
-  }
+/* === Base Reset === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  .note-card-buttons {
-    margin-top: 0.5rem;
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-  }
-  
-  .note-card-buttons button {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    border: none;
-    border-radius: 0.4rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  .note-card-buttons button:first-child {
-    background-color: #00796b;
-    color: #fff;
-  }
-  
-  .note-card-buttons button:first-child:hover {
-    background-color: #004d40;
-  }
-  
-  .note-card-buttons button:last-child {
-    background-color: #d32f2f;
-    color: #fff;
-  }
-  
-  .note-card-buttons button:last-child:hover {
-    background-color: #b71c1c;
-  }
+html,
+body {
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to bottom right, #e0f7fa, #ede7f6);
+  color: #333;
+  line-height: 1.6;
+}
 
-  .toast {
-    position: fixed;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #323232;
-    color: white;
-    padding: 0.75rem 1.25rem;
-    border-radius: 0.5rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 999;
-  }
-  
-  .toast.show {
-    opacity: 1;
-  }
+/* === Layout === */
+body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem;
+}
+
+main {
+  background-color: #fff;
+  max-width: 600px;
+  width: 100%;
+  padding: 3rem 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+/* === Typography === */
+h1 {
+  font-size: 2.2rem;
+  text-align: center;
+  color: #222;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* === Form === */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  transition: 0.2s border-color ease-in-out, 0.2s background-color ease-in-out;
+}
+
+input:focus,
+textarea:focus {
+  border-color: #26a69a;
+  background-color: #fff;
+  outline: none;
+}
+
+/* === Buttons === */
+button {
+  font-size: 1rem;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  width: 100%;
+  color: white;
+}
+
+#startVoice {
+  background-color: #43a047;
+}
+#startVoice:hover {
+  background-color: #2e7d32;
+}
+
+#saveNote {
+  background-color: #00796b;
+}
+#saveNote:hover {
+  background-color: #004d40;
+}
+
+/* === Notes === */
+#notesList {
+  margin-top: 2rem;
+}
+
+.note-card {
+  background: #fcfcfc;
+  border: 1px solid #ddd;
+  border-radius: 0.6rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+.note-card:hover {
+  transform: scale(1.01);
+}
+
+.note-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.4rem;
+  color: #222;
+}
+.note-card p {
+  margin-bottom: 0.75rem;
+  color: #444;
+}
+
+.note-card small {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+}
+
+.note-card-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.note-card-buttons button {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.875rem;
+  border-radius: 0.4rem;
+}
+
+.note-card-buttons button:nth-child(1) {
+  background-color: #00796b;
+}
+.note-card-buttons button:nth-child(1):hover {
+  background-color: #004d40;
+}
+
+.note-card-buttons button:nth-child(2) {
+  background-color: #0288d1;
+}
+.note-card-buttons button:nth-child(2):hover {
+  background-color: #01579b;
+}
+
+.note-card-buttons button:nth-child(3) {
+  background-color: #d32f2f;
+}
+.note-card-buttons button:nth-child(3):hover {
+  background-color: #b71c1c;
+}
+
+/* === Toast Notification === */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #323232;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+.toast.show {
+  opacity: 1;
+}
+
+/* === Preloader === */
+#preloader {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #1e88e5, #26c6da);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 9999;
+  padding: 2rem;
+}
+
+#preloader h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1.25rem;
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.tech-stack {
+  margin: 1rem 0;
+  list-style: none;
+  padding: 0;
+  opacity: 0;
+}
+.tech-stack li {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  opacity: 0;
+}
+
+#edgeWarning {
+  font-size: 0.95rem;
+  color: #ffeb3b;
+  margin-top
