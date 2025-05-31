@@ -18,49 +18,27 @@
   <div id="preloader" role="region" aria-label="Loading Screen">
     <h1 class="preloader-title">Welcome to GeoNotes 🗺️</h1>
     <section class="feature-grid" aria-label="Core Technologies Used">
-      <div class="feature-card">
-        ✅ <strong>HTML5 + CSS3</strong>
-        <span>Responsive UI & semantic structure</span>
-      </div>
-      <div class="feature-card">
-        ✅ <strong>JavaScript (ES6)</strong>
-        <span>Modular code with modern syntax</span>
-      </div>
-      <div class="feature-card">
-        ✅ <strong>Geolocation API</strong>
-        <span>Auto-tagging notes with user location</span>
-      </div>
-      <div class="feature-card">
-        ✅ <strong>LocalStorage API</strong>
-        <span>Version 1: Basic offline persistence</span>
-      </div>
-      <div class="feature-card">
-        ✅ <strong>IndexedDB API</strong>
-        <span>Version 2: Structured data storage</span>
-      </div>
-      <div class="feature-card">
-        ✅ <strong>Web Speech API</strong>
-        <span>Dictate notes using your voice</span>
-      </div>
-      <div class="feature-card">
-        ✅ <strong>Drag & Drop API</strong>
-        <span>Rearrange saved notes easily</span>
-      </div>
-      <div class="feature-card">
-        ✅ <strong>Battery API</strong>
-        <span>Display current power level and status</span>
-      </div>
-      <div class="feature-card">
-        ✅ <strong>GSAP Animations</strong>
-        <span>Smooth preloader and UI transitions</span>
-      </div>
+      <div class="feature-card"> <strong>HTML5 + CSS3</strong> <span>Responsive UI & semantic structure</span></div>
+      <div class="feature-card"> <strong>JavaScript (ES6)</strong> <span>Modular code with modern syntax</span></div>
+      <div class="feature-card"> <strong>Geolocation API</strong> <span>Auto-tagging notes with user location</span></div>
+      <div class="feature-card"> <strong>LocalStorage API</strong> <span>Version 1: Basic offline persistence</span></div>
+      <div class="feature-card"> <strong>IndexedDB API</strong> <span>Version 2: Structured data storage</span></div>
+      <div class="feature-card"> <strong>Web Speech API</strong> <span>Dictate notes using your voice</span></div>
+      <div class="feature-card"> <strong>Drag & Drop API</strong> <span>Rearrange saved notes easily</span></div>
+      <div class="feature-card"> <strong>Battery API</strong> <span>Display current power level and status</span></div>
+      <div class="feature-card"> <strong>GSAP Animations</strong> <span>Smooth preloader and UI transitions</span></div>
     </section>
     <p class="edge-warning">⚠️ Not compatible with Microsoft Edge</p>
   </div>
 
   <!-- 📌 Main Application UI -->
   <main id="appMain" role="main" style="display: none;">
-    <h1 id="formTitle">GeoNotes 🗺️</h1>
+    <div class="header-with-battery">
+      <h1 id="formTitle">GeoNotes 🗺️</h1>
+      <div id="batteryStatus" class="battery-status-inline" aria-live="polite">
+        🔋 Battery: <span id="batteryLevel">--</span>% | <span id="chargingStatus">---</span>
+      </div>
+    </div>
 
     <!-- ✍️ Note Input Form -->
     <form id="noteForm" aria-labelledby="formTitle" onsubmit="return false;">
@@ -93,18 +71,33 @@
     </div>
     <section id="notesList" aria-labelledby="notesTitle" aria-live="polite"></section>
 
-    <!-- 🔋 Battery Status -->
-    <div id="batteryStatus" class="battery-status" aria-live="polite">
-      <p>
-        🔋 Battery: 
-        <span id="batteryLevel">--</span>% | 
-        <span id="chargingStatus">---</span>
-      </p>
-    </div>
-
     <!-- 🔔 Toast Notification -->
     <div id="toast" class="toast" aria-live="assertive" role="status"></div>
   </main>
+
+  <!-- ✏️ Edit Modal -->
+  <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal-content">
+      <h2 id="editModalTitle">Edit Note</h2>
+      <form id="editForm" onsubmit="return false;">
+        <input 
+          type="text" 
+          id="editTitle" 
+          placeholder="Updated Title" 
+          required 
+        />
+        <textarea 
+          id="editNote" 
+          placeholder="Update your note..." 
+          required
+        ></textarea>
+        <div class="modal-actions">
+          <button type="submit" id="updateNote">💾 Save Changes</button>
+          <button type="button" id="cancelEdit">❌ Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- ⚙️ Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>

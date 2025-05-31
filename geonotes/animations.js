@@ -5,12 +5,13 @@ window.addEventListener("DOMContentLoaded", () => {
   const preloader = document.getElementById("preloader");
   const appMain = document.getElementById("appMain");
   const preloaderTitle = document.querySelector(".preloader-title");
-  const techListItems = document.querySelectorAll(".tech-stack li");
+  const featureCards = document.querySelectorAll(".feature-card");
   const edgeWarning = document.querySelector(".edge-warning");
 
-  if (!preloader || !appMain || !preloaderTitle || techListItems.length === 0 || !edgeWarning) {
+  if (!preloader || !appMain || !preloaderTitle || featureCards.length === 0 || !edgeWarning) {
     console.warn("⚠️ Required elements missing. Skipping preloader animation.");
-    appMain.style.display = "block";
+    if (preloader) preloader.style.display = "none";
+    if (appMain) appMain.style.display = "block";
     return;
   }
 
@@ -20,9 +21,7 @@ window.addEventListener("DOMContentLoaded", () => {
   appMain.style.display = "none";
 
   // STEP 2: Build Master Timeline
-  const tl = gsap.timeline({
-    defaults: { ease: "power2.out" }
-  });
+  const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
   // Show Title (centered)
   tl.fromTo(preloaderTitle, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 });
@@ -33,29 +32,22 @@ window.addEventListener("DOMContentLoaded", () => {
   // Move Title Up
   tl.to(preloaderTitle, { y: -120, duration: 1, ease: "power2.inOut" });
 
-  // Reveal .tech-stack container
-  tl.set(".tech-stack", { opacity: 1 });
+  // Show feature cards container
+  tl.set(".feature-grid", { opacity: 1 });
 
-  // Show tech list items staggered
-  tl.to(techListItems, {
+  // Animate each feature-card
+  tl.to(featureCards, {
     opacity: 1,
     y: 0,
-    stagger: 0.5,
-    duration: 0.4,
+    stagger: 0.25,
+    duration: 0.5,
     ease: "power2.out"
   }, "<+0.2");
 
-  // Show Edge Warning after stack
-  tl.fromTo(edgeWarning, {
-    opacity: 0,
-    y: 10
-  }, {
-    opacity: 1,
-    y: 0,
-    duration: 1
-  }, `+=0.4`);
+  // Show Edge Warning
+  tl.fromTo(edgeWarning, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 1 }, "+=0.4");
 
-  // Wait, then Fade Preloader Out
+  // Fade Out Preloader
   tl.to(preloader, {
     opacity: 0,
     duration: 2,

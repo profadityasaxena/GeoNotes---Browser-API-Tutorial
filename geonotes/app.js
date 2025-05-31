@@ -6,161 +6,154 @@ const saveButton = document.getElementById("saveNote");
 const notesSection = document.getElementById("notesList");
 let editingKey = null;
 
-// Save or update a note with geolocation
+let draggedNoteId = null;
+
 saveButton.addEventListener("click", async () => {
     const title = titleInput.value.trim();
     const content = noteInput.value.trim();
 
-    if (!title || !content) {
-        showToast("Please enter both a title and a note.");
-        return;
-    }
-
-    if (!navigator.geolocation) {
-        showToast("Geolocation is not supported by your browser.");
-        return;
-    }
+    if (!title || !content) return showToast("Please enter both a title and a note.");
+    if (!navigator.geolocation) return showToast("Geolocation is not supported by your browser.");
 
     navigator.geolocation.getCurrentPosition(
-        async (position) => {
-            const { latitude, longitude } = position.coords;
-
+        async ({ coords }) => {
             const note = {
                 title,
                 content,
-                location: { latitude, longitude },
+                location: { latitude: coords.latitude, longitude: coords.longitude },
                 timestamp: new Date().toISOString(),
             };
 
             const noteKey = editingKey || `note-${Date.now()}`;
+            const db = await dbPromise;
+            await db.put('notes', { ...note, id: noteKey });
 
-            try {
-                const db = await dbPromise;
-                await db.put('notes', { ...note, id: noteKey });
-
-                if ("Notification" in window) {
-                    if (Notification.permission === "granted") {
-                        new Notification("📌 Note Saved", { body: title });
-                    } else if (Notification.permission !== "denied") {
-                        Notification.requestPermission().then((perm) => {
-                            if (perm === "granted") {
-                                new Notification("📌 Note Saved", { body: title });
-                            }
-                        });
-                    }
-                }
-
-                titleInput.value = "";
-                noteInput.value = "";
-                editingKey = null;
-                saveButton.textContent = "Save Note";
-
-                showToast(`✅ Note saved at:\nLat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)}`);
-                loadNotes();
-            } catch (err) {
-                console.error("Error saving note to IndexedDB", err);
-                showToast("❌ Failed to save note.");
-            }
+            notifyUser(title);
+            resetForm();
+            showToast(`✅ Note saved at:\nLat: ${coords.latitude.toFixed(5)}, Lng: ${coords.longitude.toFixed(5)}`);
+            loadNotes();
         },
-        (error) => {
-            console.error("Geolocation error:", error);
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    showToast("❌ Location access denied by the user.");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    showToast("❌ Location information is unavailable.");
-                    break;
-                case error.TIMEOUT:
-                    showToast("⏳ Request to get user location timed out.");
-                    break;
-                default:
-                    showToast("⚠️ An unknown error occurred while fetching location.");
-            }
-        }
+        (error) => handleGeoError(error)
     );
 });
 
-// Load and render notes from IndexedDB
-/**
- * Asynchronously loads and displays notes from the IndexedDB database.
- * 
- * This function retrieves all notes stored in the "notes" object store of the IndexedDB database.
- * It sorts the notes by their timestamp in descending order and dynamically generates HTML elements
- * to display each note in the `notesSection` element. If no notes are found, a message is displayed
- * indicating that no notes are saved yet.
- * 
- * The notes are displayed with their title, content, location (latitude and longitude), and timestamp.
- * Each note also includes buttons for copying, editing, and deleting the note.
- * 
- * @async
- * @function loadNotes
- * @returns {Promise<void>} Resolves when the notes are successfully loaded and displayed.
- */
+function notifyUser(title) {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+        new Notification("📌 Note Saved", { body: title });
+    } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(perm => {
+            if (perm === "granted") new Notification("📌 Note Saved", { body: title });
+        });
+    }
+}
+
+function resetForm() {
+    titleInput.value = "";
+    noteInput.value = "";
+    editingKey = null;
+    saveButton.textContent = "Save Note";
+}
+
+function handleGeoError(error) {
+    const messages = {
+        1: "❌ Location access denied by the user.",
+        2: "❌ Location information is unavailable.",
+        3: "⏳ Request to get user location timed out."
+    };
+    showToast(messages[error.code] || "⚠️ An unknown error occurred while fetching location.");
+}
+
 async function loadNotes() {
     const db = await dbPromise;
     const notes = await db.getAll('notes');
-
-    notesSection.innerHTML = notes.length === 0
-        ? "<p>No notes saved yet.</p>"
-        : "";
-
-    notes
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .forEach(note => {
-            const noteCard = document.createElement("div");
-            noteCard.className = "note-card";
-            noteCard.innerHTML = `
-                <h3>${note.title}</h3>
-                <p>${note.content}</p>
-                <small>📍 Lat: ${note.location.latitude.toFixed(5)}, Lng: ${note.location.longitude.toFixed(5)}</small><br/>
-                <small>🕒 ${new Date(note.timestamp).toLocaleString()}</small>
-                <div class="note-card-buttons">
-                    <button onclick="copyNoteContent('${note.title}', \`${note.content}\`)">Copy</button>
-                    <button onclick="editNote('${note.id}')">Edit</button>
-                    <button onclick="deleteNote('${note.id}')">Delete</button>
-                </div>
-            `;
-            notesSection.appendChild(noteCard);
-        });
+    notesSection.innerHTML = notes.length ? "" : "<p>No notes saved yet.</p>";
+    notes.forEach(note => renderNoteCard(note));
 }
 
-// Edit an existing note
-async function editNote(id) {
+function renderNoteCard(note) {
+    const noteCard = document.createElement("div");
+    noteCard.className = "note-card";
+    noteCard.setAttribute("draggable", "true");
+    noteCard.setAttribute("data-id", note.id);
+    noteCard.innerHTML = `
+        <h3>${note.title}</h3>
+        <p>${note.content}</p>
+        <small>📍 Lat: ${note.location.latitude.toFixed(5)}, Lng: ${note.location.longitude.toFixed(5)}</small><br/>
+        <small>🕒 ${new Date(note.timestamp).toLocaleString()}</small>
+        <div class="note-card-buttons">
+            <button onclick="copyNoteContent('${note.title}', \`${note.content}\`)">Copy</button>
+            <button onclick="editNote('${note.id}')">Edit</button>
+            <button onclick="deleteNote('${note.id}')">Delete</button>
+        </div>
+    `;
+
+    noteCard.addEventListener("dragstart", () => {
+        draggedNoteId = note.id;
+        noteCard.classList.add("dragging");
+    });
+
+    noteCard.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        noteCard.classList.add("dragover");
+    });
+
+    noteCard.addEventListener("dragleave", () => {
+        noteCard.classList.remove("dragover");
+    });
+
+    noteCard.addEventListener("drop", async () => {
+        noteCard.classList.remove("dragover");
+        if (draggedNoteId && draggedNoteId !== note.id) {
+            const db = await dbPromise;
+            const allNotes = await db.getAll('notes');
+            const draggedIndex = allNotes.findIndex(n => n.id === draggedNoteId);
+            const targetIndex = allNotes.findIndex(n => n.id === note.id);
+            const reordered = [...allNotes];
+            const [draggedNote] = reordered.splice(draggedIndex, 1);
+            reordered.splice(targetIndex, 0, draggedNote);
+            const tx = db.transaction('notes', 'readwrite');
+            await tx.store.clear();
+            for (let n of reordered) await tx.store.put(n);
+            await tx.done;
+            loadNotes();
+        }
+        draggedNoteId = null;
+    });
+
+    noteCard.addEventListener("dragend", () => {
+        noteCard.classList.remove("dragging");
+        draggedNoteId = null;
+    });
+
+    notesSection.appendChild(noteCard);
+}
+
+window.editNote = async function (id) {
     const db = await dbPromise;
     const note = await db.get('notes', id);
+    if (!note) return;
+    editingKey = note.id;
+    document.getElementById("editTitle").value = note.title;
+    document.getElementById("editNote").value = note.content;
+    const modal = document.getElementById("editModal");
+    modal.classList.add("show");
+};
 
-    if (note) {
-        titleInput.value = note.title;
-        noteInput.value = note.content;
-        editingKey = note.id;
-        saveButton.textContent = "Update Note";
-        showToast("✏️ Edit mode enabled");
-    }
-}
-window.editNote = editNote;
+window.deleteNote = async function (id) {
+    if (!confirm("Are you sure you want to delete this note?")) return;
+    const db = await dbPromise;
+    await db.delete('notes', id);
+    showToast("🗑️ Note deleted.");
+    loadNotes();
+};
 
-// Delete a note
-async function deleteNote(id) {
-    if (confirm("Are you sure you want to delete this note?")) {
-        const db = await dbPromise;
-        await db.delete('notes', id);
-        showToast("🗑️ Note deleted.");
-        loadNotes();
-    }
-}
-window.deleteNote = deleteNote;
-
-// Copy note content to clipboard
-function copyNoteContent(title, content) {
-    const combined = `📌 ${title}\n\n${content}`;
-    navigator.clipboard.writeText(combined)
+window.copyNoteContent = function (title, content) {
+    navigator.clipboard.writeText(`📌 ${title}\n\n${content}`)
         .then(() => showToast("📝 Note copied to clipboard!"))
         .catch(() => showToast("❌ Failed to copy note."));
-}
-window.copyNoteContent = copyNoteContent;
+};
 
-// Display a toast notification
 function showToast(message) {
     const toast = document.getElementById("toast");
     toast.textContent = message;
@@ -168,29 +161,27 @@ function showToast(message) {
     setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
-// Initialize voice recognition for note input
 const startVoiceBtn = document.getElementById("startVoice");
 
 if ('webkitSpeechRecognition' in window) {
     const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = "en-US";
 
     startVoiceBtn.addEventListener("click", () => {
         recognition.start();
         showToast("🎙️ Listening... Speak your note.");
     });
 
-    recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        noteInput.value = transcript;
+    recognition.onresult = ({ results }) => {
+        noteInput.value = results[0][0].transcript;
         showToast("✅ Voice captured!");
     };
 
-    recognition.onerror = function(event) {
-        console.error("Speech recognition error:", event.error);
-        showToast(`❌ Voice error: ${event.error}`);
+    recognition.onerror = ({ error }) => {
+        console.error("Speech recognition error:", error);
+        showToast(`❌ Voice error: ${error}`);
     };
 } else {
     startVoiceBtn.disabled = true;
@@ -198,41 +189,42 @@ if ('webkitSpeechRecognition' in window) {
     showToast("⚠️ Speech Recognition not supported on this browser.");
 }
 
-// Load notes and initialize battery status on page load
 window.addEventListener("load", () => {
     loadNotes();
     initBatteryStatus();
 });
 
-// Debug hook to read all notes
-window.testReadNotes = async function () {
+document.getElementById("editForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const updatedTitle = document.getElementById("editTitle").value.trim();
+    const updatedNote = document.getElementById("editNote").value.trim();
+    if (!updatedTitle || !updatedNote) return showToast("Title and content cannot be empty.");
     const db = await dbPromise;
-    const notes = await db.getAll('notes');
-    console.log("📂 All notes in IndexedDB:", notes);
-};
+    const existing = await db.get('notes', editingKey);
+    await db.put('notes', { ...existing, title: updatedTitle, content: updatedNote, timestamp: new Date().toISOString() });
+    document.getElementById("editModal").classList.remove("show");
+    editingKey = null;
+    loadNotes();
+});
 
-// Initialize battery status monitoring
+document.getElementById("cancelEdit").addEventListener("click", () => {
+    document.getElementById("editModal").classList.remove("show");
+    editingKey = null;
+});
+
 function initBatteryStatus() {
-    if (!('getBattery' in navigator)) {
-        console.warn("Battery API not supported");
-        return;
-    }
-
-    navigator.getBattery().then((battery) => {
+    if (!navigator.getBattery) return;
+    navigator.getBattery().then(battery => {
         const levelEl = document.getElementById('batteryLevel');
         const chargingEl = document.getElementById('chargingStatus');
-
         function updateBatteryInfo() {
             levelEl.textContent = Math.round(battery.level * 100);
             chargingEl.textContent = battery.charging ? "Charging ⚡" : "Discharging";
-
             if (battery.level <= 0.2 && !battery.charging) {
                 showToast("⚠️ Low Battery! Consider saving your work.");
             }
         }
-
         updateBatteryInfo();
-
         battery.addEventListener('levelchange', updateBatteryInfo);
         battery.addEventListener('chargingchange', updateBatteryInfo);
     });
