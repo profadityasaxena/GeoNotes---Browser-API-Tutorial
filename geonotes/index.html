@@ -10,8 +10,6 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Favicon -->
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
@@ -19,17 +17,44 @@
   <!-- 🔄 Preloader -->
   <div id="preloader" role="region" aria-label="Loading Screen">
     <h1 class="preloader-title">Welcome to GeoNotes 🗺️</h1>
-    <ul class="tech-stack">
-      <li>✅ HTML5 + CSS3</li>
-      <li>✅ Vanilla JavaScript (ES6)</li>
-      <li>✅ Geolocation API</li>
-      <li>✅ Version 1: LocalStorage API</li>
-      <li>✅ Version 2: IndexedDB API</li>
-      <li>✅ Web Speech API (Voice Input)</li>
-      <li>✅ Drag & Drop API</li>
-      <li>✅ Battery API</li>
-      <li>✅ GSAP Animations</li>
-    </ul>
+    <section class="feature-grid" aria-label="Core Technologies Used">
+      <div class="feature-card">
+        ✅ <strong>HTML5 + CSS3</strong>
+        <span>Responsive UI & semantic structure</span>
+      </div>
+      <div class="feature-card">
+        ✅ <strong>JavaScript (ES6)</strong>
+        <span>Modular code with modern syntax</span>
+      </div>
+      <div class="feature-card">
+        ✅ <strong>Geolocation API</strong>
+        <span>Auto-tagging notes with user location</span>
+      </div>
+      <div class="feature-card">
+        ✅ <strong>LocalStorage API</strong>
+        <span>Version 1: Basic offline persistence</span>
+      </div>
+      <div class="feature-card">
+        ✅ <strong>IndexedDB API</strong>
+        <span>Version 2: Structured data storage</span>
+      </div>
+      <div class="feature-card">
+        ✅ <strong>Web Speech API</strong>
+        <span>Dictate notes using your voice</span>
+      </div>
+      <div class="feature-card">
+        ✅ <strong>Drag & Drop API</strong>
+        <span>Rearrange saved notes easily</span>
+      </div>
+      <div class="feature-card">
+        ✅ <strong>Battery API</strong>
+        <span>Display current power level and status</span>
+      </div>
+      <div class="feature-card">
+        ✅ <strong>GSAP Animations</strong>
+        <span>Smooth preloader and UI transitions</span>
+      </div>
+    </section>
     <p class="edge-warning">⚠️ Not compatible with Microsoft Edge</p>
   </div>
 
@@ -55,20 +80,8 @@
         required
       ></textarea>
       <div class="form-buttons">
-        <button 
-          type="button" 
-          id="startVoice" 
-          aria-label="Start Voice Input"
-        >
-          🎤 Voice Input
-        </button>
-        <button 
-          id="saveNote" 
-          type="submit" 
-          aria-label="Save Note"
-        >
-          Save Note
-        </button>
+        <button type="button" id="startVoice" aria-label="Start Voice Input">🎤 Voice Input</button>
+        <button id="saveNote" type="submit" aria-label="Save Note">Save Note</button>
       </div>
     </form>
 
@@ -78,18 +91,10 @@
     <div id="notesHeader" class="notes-header">
       <h2 id="notesTitle">📓 Saved Notes</h2>
     </div>
-    <section 
-      id="notesList" 
-      aria-labelledby="notesTitle" 
-      aria-live="polite"
-    ></section>
+    <section id="notesList" aria-labelledby="notesTitle" aria-live="polite"></section>
 
     <!-- 🔋 Battery Status -->
-    <div 
-      id="batteryStatus" 
-      class="battery-status" 
-      aria-live="polite"
-    >
+    <div id="batteryStatus" class="battery-status" aria-live="polite">
       <p>
         🔋 Battery: 
         <span id="batteryLevel">--</span>% | 
@@ -98,26 +103,12 @@
     </div>
 
     <!-- 🔔 Toast Notification -->
-    <div 
-      id="toast" 
-      class="toast" 
-      aria-live="assertive" 
-      role="status"
-    ></div>
+    <div id="toast" class="toast" aria-live="assertive" role="status"></div>
   </main>
 
-  <!-- ⚙️ JavaScript Dependencies -->
-  <script 
-    src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" 
-    defer
-  ></script>
-  <script 
-    type="module" 
-    src="app.js"
-  ></script>
-  <script 
-    src="animations.js" 
-    defer
-  ></script>
+  <!-- ⚙️ Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script type="module" src="app.js"></script>
+  <script src="animations.js" defer></script>
 </body>
 </html>

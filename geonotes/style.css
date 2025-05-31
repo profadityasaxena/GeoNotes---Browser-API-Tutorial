@@ -86,6 +86,7 @@ button {
 #startVoice {
   background-color: #43a047;
 }
+
 #startVoice:hover {
   background-color: #2e7d32;
 }
@@ -93,8 +94,15 @@ button {
 #saveNote {
   background-color: #00796b;
 }
+
 #saveNote:hover {
   background-color: #004d40;
+}
+
+.form-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 /* === Notes === */
@@ -111,6 +119,7 @@ button {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease;
 }
+
 .note-card:hover {
   transform: scale(1.01);
 }
@@ -120,6 +129,7 @@ button {
   margin-bottom: 0.4rem;
   color: #222;
 }
+
 .note-card p {
   margin-bottom: 0.75rem;
   color: #444;
@@ -147,6 +157,7 @@ button {
 .note-card-buttons button:nth-child(1) {
   background-color: #00796b;
 }
+
 .note-card-buttons button:nth-child(1):hover {
   background-color: #004d40;
 }
@@ -154,6 +165,7 @@ button {
 .note-card-buttons button:nth-child(2) {
   background-color: #0288d1;
 }
+
 .note-card-buttons button:nth-child(2):hover {
   background-color: #01579b;
 }
@@ -161,6 +173,7 @@ button {
 .note-card-buttons button:nth-child(3) {
   background-color: #d32f2f;
 }
+
 .note-card-buttons button:nth-child(3):hover {
   background-color: #b71c1c;
 }
@@ -180,6 +193,7 @@ button {
   transition: opacity 0.3s ease;
   z-index: 1000;
 }
+
 .toast.show {
   opacity: 1;
 }
@@ -206,31 +220,45 @@ button {
 }
 
 .tech-stack {
-  margin: 1rem 0;
+  margin: 1.5rem 0;
   list-style: none;
   padding: 0;
   opacity: 0;
 }
+
 .tech-stack li {
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
   opacity: 0;
 }
 
-#edgeWarning {
+.edge-warning {
   font-size: 0.95rem;
   color: #ffeb3b;
-  margin-top
+  margin-top: 1.5rem;
+}
 
+/* === Battery Status === */
+.battery-status {
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  z-index: 10;
+}
 
-  .battery-status {
-    position: fixed;
-    bottom: 10px;
-    right: 20px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    z-index: 10;
+/* === Keyframes === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
