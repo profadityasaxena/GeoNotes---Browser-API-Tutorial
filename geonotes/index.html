@@ -6,9 +6,10 @@
   <title>GeoNotes</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <main>
-    <h1>GeoNotes 🗺️</h1>
+    <h1 id="formTitle">GeoNotes 🗺️</h1>
 
     <!-- Note Input Form -->
     <form id="noteForm" onsubmit="return false;" aria-labelledby="formTitle">
@@ -33,9 +34,12 @@
 
     <!-- Notes Section -->
     <div id="notesHeader" class="notes-header">
-      <h2>📓 Saved Notes</h2>
+      <h2 id="notesTitle">📓 Saved Notes</h2>
     </div>
-    <section id="notesList" aria-live="polite"></section>
+    <section id="notesList" aria-labelledby="notesTitle" aria-live="polite"></section>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" aria-live="polite"></div>
   </main>
 
   <script src="app.js"></script>
