@@ -1,8 +1,13 @@
+// ------------------------------
+// Element References
+// ------------------------------
 const titleInput = document.getElementById("title");
 const noteInput = document.getElementById("note");
 const saveButton = document.getElementById("saveNote");
 
-// Save note on click
+// ------------------------------
+// Save Note (with Geolocation)
+// ------------------------------
 saveButton.addEventListener("click", () => {
     const title = titleInput.value.trim();
     const content = noteInput.value.trim();
@@ -31,6 +36,7 @@ saveButton.addEventListener("click", () => {
             const noteKey = `note-${Date.now()}`;
             localStorage.setItem(noteKey, JSON.stringify(note));
 
+            // Trigger browser notification
             if ("Notification" in window) {
                 if (Notification.permission === "granted") {
                     new Notification("📌 Note Saved", { body: title });
@@ -43,9 +49,13 @@ saveButton.addEventListener("click", () => {
                 }
             }
 
+            // Reset form
             titleInput.value = "";
             noteInput.value = "";
-            alert(`✅ Note saved at:\nLatitude: ${latitude.toFixed(5)}\nLongitude: ${longitude.toFixed(5)}`);
+
+            alert(
+                `✅ Note saved at:\nLatitude: ${latitude.toFixed(5)}\nLongitude: ${longitude.toFixed(5)}`
+            );
 
             loadNotes();
         },
@@ -68,12 +78,16 @@ saveButton.addEventListener("click", () => {
     );
 });
 
-// Display saved notes with copy button
+// ------------------------------
+// Load & Render Notes
+// ------------------------------
 function loadNotes() {
     const notesSection = document.getElementById("notesList");
     notesSection.innerHTML = "";
 
-    const keys = Object.keys(localStorage).filter(k => k.startsWith("note-")).sort();
+    const keys = Object.keys(localStorage)
+        .filter(k => k.startsWith("note-"))
+        .sort();
 
     if (keys.length === 0) {
         notesSection.innerHTML = "<p>No notes saved yet.</p>";
@@ -101,7 +115,9 @@ function loadNotes() {
     });
 }
 
-// Clipboard API logic
+// ------------------------------
+// Copy to Clipboard
+// ------------------------------
 function copyNoteContent(title, content) {
     const combined = `📌 ${title}\n\n${content}`;
     navigator.clipboard.writeText(combined)
@@ -109,13 +125,17 @@ function copyNoteContent(title, content) {
         .catch(() => alert("❌ Failed to copy note."));
 }
 
-// Reload on page load
-window.addEventListener("load", loadNotes);
-
-// Delete note by key
+// ------------------------------
+// Delete Note
+// ------------------------------
 function deleteNote(noteKey) {
     if (confirm("Are you sure you want to delete this note?")) {
-      localStorage.removeItem(noteKey);
-      loadNotes();
+        localStorage.removeItem(noteKey);
+        loadNotes();
     }
-  }
+}
+
+// ------------------------------
+// Load Notes on Page Load
+// ------------------------------
+window.addEventListener("load", loadNotes);
