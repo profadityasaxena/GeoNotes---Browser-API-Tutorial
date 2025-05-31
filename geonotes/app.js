@@ -2,6 +2,7 @@ const titleInput = document.getElementById("title");
 const noteInput = document.getElementById("note");
 const saveButton = document.getElementById("saveNote");
 
+// Save note on click
 saveButton.addEventListener("click", () => {
   const title = titleInput.value.trim();
   const content = noteInput.value.trim();
@@ -31,7 +32,7 @@ saveButton.addEventListener("click", () => {
       const noteKey = `note-${Date.now()}`;
       localStorage.setItem(noteKey, JSON.stringify(note));
 
-      // Show browser notification if permission is granted
+      // Trigger browser notification
       if ("Notification" in window) {
         if (Notification.permission === "granted") {
           new Notification("📌 Note Saved", { body: title });
@@ -44,10 +45,13 @@ saveButton.addEventListener("click", () => {
         }
       }
 
-      // Reset form and show confirmation
+      // Clear inputs and confirm
       titleInput.value = "";
       noteInput.value = "";
-      alert(`✅ Note saved at:\nLatitude: ${latitude}\nLongitude: ${longitude}`);
+      alert(`✅ Note saved at:\nLatitude: ${latitude.toFixed(5)}\nLongitude: ${longitude.toFixed(5)}`);
+
+      // Refresh notes
+      loadNotes();
     },
     (error) => {
       console.error("Geolocation error:", error);
@@ -67,3 +71,32 @@ saveButton.addEventListener("click", () => {
     }
   );
 });
+
+// Display saved notes
+function loadNotes() {
+  const notesSection = document.getElementById("notesList");
+  notesSection.innerHTML = ""; // Clear previous
+
+  const keys = Object.keys(localStorage).filter(k => k.startsWith("note-")).sort();
+
+  if (keys.length === 0) {
+    notesSection.innerHTML = "<p>No notes saved yet.</p>";
+    return;
+  }
+
+  keys.forEach(key => {
+    const note = JSON.parse(localStorage.getItem(key));
+    const noteCard = document.createElement("div");
+    noteCard.className = "note-card";
+    noteCard.innerHTML = `
+      <h3>${note.title}</h3>
+      <p>${note.content}</p>
+      <small>📍 Lat: ${note.location.latitude.toFixed(5)}, Lng: ${note.location.longitude.toFixed(5)}</small><br/>
+      <small>🕒 ${new Date(note.timestamp).toLocaleString()}</small>
+    `;
+    notesSection.appendChild(noteCard);
+  });
+}
+
+// Initial load
+window.addEventListener("load", loadNotes);
