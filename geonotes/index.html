@@ -1,24 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>GeoNotes</title>
-        <link rel="stylesheet" href="style.css" />
-    </head>
-    <body>
-        <main>
-            <h1>GeoNotes 🗺️</h1>
-            <input type="text" id="title" placeholder="Note Title" />
-            <textarea id="note" placeholder="Write your note here..."></textarea>
-            <button id="saveNote">Save Note</button>
-            <section id="notes"></section>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoNotes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <h1>GeoNotes 🗺️</h1>
 
-            <hr />
-            <h2>📓 Saved Notes</h2>
-            <section id="notesList"></section>
-        </main>
+    <!-- Note Input Form -->
+    <form id="noteForm" onsubmit="return false;" aria-labelledby="formTitle">
+      <input
+        type="text"
+        id="title"
+        placeholder="Note Title"
+        aria-label="Note Title"
+        required
+      />
+      <textarea
+        id="note"
+        placeholder="Write your note here..."
+        aria-label="Note Content"
+        required
+      ></textarea>
+      <button id="saveNote" type="submit">Save Note</button>
+    </form>
 
-        <script src="app.js"></script>
-    </body>
+    <!-- Divider -->
+    <hr />
+
+    <!-- Notes Section -->
+    <div id="notesHeader" class="notes-header">
+      <h2>📓 Saved Notes</h2>
+    </div>
+    <section id="notesList" aria-live="polite"></section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
 </html>

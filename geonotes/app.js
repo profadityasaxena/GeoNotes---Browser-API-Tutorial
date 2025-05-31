@@ -28,11 +28,9 @@ saveButton.addEventListener("click", () => {
         timestamp: new Date().toISOString(),
       };
 
-      // Save to localStorage
       const noteKey = `note-${Date.now()}`;
       localStorage.setItem(noteKey, JSON.stringify(note));
 
-      // Trigger browser notification
       if ("Notification" in window) {
         if (Notification.permission === "granted") {
           new Notification("📌 Note Saved", { body: title });
@@ -45,12 +43,10 @@ saveButton.addEventListener("click", () => {
         }
       }
 
-      // Clear inputs and confirm
       titleInput.value = "";
       noteInput.value = "";
       alert(`✅ Note saved at:\nLatitude: ${latitude.toFixed(5)}\nLongitude: ${longitude.toFixed(5)}`);
 
-      // Refresh notes
       loadNotes();
     },
     (error) => {
@@ -72,10 +68,10 @@ saveButton.addEventListener("click", () => {
   );
 });
 
-// Display saved notes
+// Display saved notes with copy button
 function loadNotes() {
   const notesSection = document.getElementById("notesList");
-  notesSection.innerHTML = ""; // Clear previous
+  notesSection.innerHTML = "";
 
   const keys = Object.keys(localStorage).filter(k => k.startsWith("note-")).sort();
 
@@ -86,17 +82,31 @@ function loadNotes() {
 
   keys.forEach(key => {
     const note = JSON.parse(localStorage.getItem(key));
+
     const noteCard = document.createElement("div");
     noteCard.className = "note-card";
+
     noteCard.innerHTML = `
       <h3>${note.title}</h3>
       <p>${note.content}</p>
       <small>📍 Lat: ${note.location.latitude.toFixed(5)}, Lng: ${note.location.longitude.toFixed(5)}</small><br/>
       <small>🕒 ${new Date(note.timestamp).toLocaleString()}</small>
+      <div class="note-card-buttons">
+        <button onclick="copyNoteContent(\`${note.title.replace(/`/g, "\\`")}\`, \`${note.content.replace(/`/g, "\\`")}\`)">Copy</button>
+      </div>
     `;
+
     notesSection.appendChild(noteCard);
   });
 }
 
-// Initial load
+// Clipboard API logic
+function copyNoteContent(title, content) {
+  const combined = `📌 ${title}\n\n${content}`;
+  navigator.clipboard.writeText(combined)
+    .then(() => alert("📝 Note copied to clipboard!"))
+    .catch(() => alert("❌ Failed to copy note."));
+}
+
+// Reload on page load
 window.addEventListener("load", loadNotes);
