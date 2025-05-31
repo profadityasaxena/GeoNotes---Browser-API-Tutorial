@@ -1,65 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="description" content="GeoNotes is a browser-based note-taking app using Geolocation, Speech Recognition, and more." />
-  <meta name="theme-color" content="#00796b" />
-  <title>GeoNotes | Smart Notes with Geolocation & Voice</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="GeoNotes is a browser-based note-taking app using Geolocation, Speech Recognition, and more." />
+    <meta name="theme-color" content="#00796b" />
+    <title>GeoNotes | Smart Notes with Geolocation & Voice</title>
 
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css" />
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css" />
 
-  <!-- Favicon (optional) -->
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <!-- Favicon (optional) -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
-  <!-- 🔄 Preloader -->
-  <div id="preloader" role="region" aria-label="Loading Screen">
-    <h1 class="preloader-title">Welcome to GeoNotes 🗺️</h1>
-    <ul class="tech-stack">
-      <li>✅ HTML5 + CSS3</li>
-      <li>✅ Vanilla JavaScript (ES6)</li>
-      <li>✅ Geolocation API</li>
-      <li>✅ Version 1: LocalStorage API</li>
-      <li>✅ Version 2: IndexedDB API</li>
-      <li>✅ Web Speech API (Voice Input)</li>
-      <li>✅ Drag & Drop API</li>
-      <li>✅ GSAP Animations</li>
-    </ul>
-    <p class="edge-warning">⚠️ Not compatible with Microsoft Edge</p>
-  </div>
-
-  <!-- 📌 Main App UI -->
-  <main id="appMain" role="main" style="display: none;">
-    <h1 id="formTitle">GeoNotes 🗺️</h1>
-
-    <!-- ✍️ Note Input Form -->
-    <form id="noteForm" aria-labelledby="formTitle" onsubmit="return false;">
-      <input type="text" id="title" name="title" placeholder="Note Title" aria-label="Note Title" required />
-      <textarea id="note" name="note" placeholder="Write your note here..." aria-label="Note Content" required></textarea>
-      <button type="button" id="startVoice" aria-label="Start Voice Input">🎤 Voice Input</button>
-      <button id="saveNote" type="submit" aria-label="Save Note">Save Note</button>
-    </form>
-
-    <hr aria-hidden="true" />
-
-    <!-- 📚 Notes Section -->
-    <div id="notesHeader" class="notes-header">
-      <h2 id="notesTitle">📓 Saved Notes</h2>
+    <!-- 🔄 Preloader -->
+    <div id="preloader" role="region" aria-label="Loading Screen">
+        <h1 class="preloader-title">Welcome to GeoNotes 🗺️</h1>
+        <ul class="tech-stack">
+            <li>✅ HTML5 + CSS3</li>
+            <li>✅ Vanilla JavaScript (ES6)</li>
+            <li>✅ Geolocation API</li>
+            <li>✅ Version 1: LocalStorage API</li>
+            <li>✅ Version 2: IndexedDB API</li>
+            <li>✅ Web Speech API (Voice Input)</li>
+            <li>✅ Drag & Drop API</li>
+            <li>✅ GSAP Animations</li>
+        </ul>
+        <p class="edge-warning">⚠️ Not compatible with Microsoft Edge</p>
     </div>
-    <section id="notesList" aria-labelledby="notesTitle" aria-live="polite"></section>
 
-    <!-- 🔔 Toast Notification -->
-    <div id="toast" class="toast" aria-live="assertive" role="status"></div>
-  </main>
+    <!-- 📌 Main App UI -->
+    <main id="appMain" role="main" style="display: none;">
+        <h1 id="formTitle">GeoNotes 🗺️</h1>
 
-  <!-- ⚙️ Scripts -->
-  <!-- ⚙️ Scripts -->
+        <!-- ✍️ Note Input Form -->
+        <form id="noteForm" aria-labelledby="formTitle" onsubmit="return false;">
+            <input type="text" id="title" name="title" placeholder="Note Title" aria-label="Note Title" required />
+            <textarea id="note" name="note" placeholder="Write your note here..." aria-label="Note Content" required></textarea>
+            <button type="button" id="startVoice" aria-label="Start Voice Input">🎤 Voice Input</button>
+            <button id="saveNote" type="submit" aria-label="Save Note">Save Note</button>
+        </form>
+
+        <hr aria-hidden="true" />
+
+        <!-- 📚 Notes Section -->
+        <div id="notesHeader" class="notes-header">
+            <h2 id="notesTitle">📓 Saved Notes</h2>
+        </div>
+        <section id="notesList" aria-labelledby="notesTitle" aria-live="polite"></section>
+
+        <!-- 🔋 Battery Status -->
+        <div id="batteryStatus" class="battery-status" aria-live="polite">
+            <p>🔋 Battery: <span id="batteryLevel">--</span>% | <span id="chargingStatus">---</span></p>
+        </div>
+
+        <!-- 🔔 Toast Notification -->
+        <div id="toast" class="toast" aria-live="assertive" role="status"></div>
+    </main>
+
+    <!-- ⚙️ Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
     <script type="module" src="app.js"></script>
     <script src="animations.js" defer></script>
-  
 </body>
 </html>

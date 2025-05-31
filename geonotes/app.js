@@ -218,3 +218,37 @@ window.testReadNotes = async function () {
   const notes = await db.getAll('notes');
   console.log("📂 All notes in IndexedDB:", notes);
 };
+
+// ------------------------------
+// Battery API Support
+// ------------------------------
+function initBatteryStatus() {
+    if (!('getBattery' in navigator)) {
+      console.warn("Battery API not supported");
+      return;
+    }
+  
+    navigator.getBattery().then((battery) => {
+      const levelEl = document.getElementById('batteryLevel');
+      const chargingEl = document.getElementById('chargingStatus');
+  
+      function updateBatteryInfo() {
+        levelEl.textContent = Math.round(battery.level * 100);
+        chargingEl.textContent = battery.charging ? "Charging ⚡" : "Discharging";
+  
+        if (battery.level <= 0.2 && !battery.charging) {
+          showToast("⚠️ Low Battery! Consider saving your work.");
+        }
+      }
+  
+      updateBatteryInfo();
+  
+      battery.addEventListener('levelchange', updateBatteryInfo);
+      battery.addEventListener('chargingchange', updateBatteryInfo);
+    });
+  }
+  
+  window.addEventListener("load", () => {
+    loadNotes();
+    initBatteryStatus();
+  });
